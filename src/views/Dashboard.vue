@@ -9,6 +9,7 @@
                         :headers="posHeaders"
                         :items="positions"
                         class="elevation-1"
+                        dense
                     >
                     </v-data-table>
                 </v-row>
@@ -21,7 +22,6 @@
 
 <script>
 import { mapMultiRowFields } from 'vuex-map-fields';
-
 
 export default {
     name: 'Dashboard',
@@ -38,7 +38,9 @@ export default {
 
     created(){
         this.$store
-            .dispatch('populatePositions')
+            .dispatch('populatePositions');
+        this.$store
+            .dispatch('populatePortfolios')
     },
     
     methods:{
