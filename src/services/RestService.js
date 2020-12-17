@@ -38,6 +38,9 @@ export default {
         })
         .catch(function(){
             console.log('upload failed');
+            return false;
         })
+
+        return true;
     },
 }
