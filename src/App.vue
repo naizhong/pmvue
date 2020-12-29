@@ -20,7 +20,7 @@
 </template>
 
 <script>
-import Dashboard from './views/Dashboard';
+import Dashboard from './views/Dashboard'
 import FileUpload from '@/components/FileUpload.vue'
 
 export default {

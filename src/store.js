@@ -8,10 +8,12 @@ Vue.use(Vuex)
 
 export default new Vuex.Store({
     state:{
-        positions:{},
-        stocks: {},
-        portfolios: {},
-        portfolioNames: {},
+        positions:[],
+        newPositions:[],
+        stocks: [],
+        portfolios: [],
+        portfolioNames: [],
+        portfolioName: null,
         file: null,
     },
     getters:{
@@ -19,7 +21,7 @@ export default new Vuex.Store({
     },
     mutations: {
         POPULATE_POSITIONS(state){
-            restService.getPositions()
+            restService.getPositions(this.state.portfolioName)
             .then(Response => {
                 state.positions = Response.data
             })
@@ -37,6 +39,27 @@ export default new Vuex.Store({
                 console.log('Error getting portfolios:', error)
             })
         },
+        POPULATE_STOCKS(state){
+            restService.getStocks()
+            .then(Response => {
+                state.stocks = Response.data
+            })
+            .catch(error => {
+                console.log('Error getting stocks:', error)
+            })
+        },
+        SAVE_POSITIONS(state){
+            restService.savePositions(state.positions)
+            .catch(error => {
+                console.log('Error saving positions:', error)
+            })
+        },
+        SAVE_PORTFOLIO(state, payload){
+            restService.savePortfolio(state.positions, payload.portfolio)
+            .catch(error => {
+                console.log('Error saving portfolio:', error)
+            })
+        },
         updateField,
     },
     actions: {
@@ -45,6 +68,12 @@ export default new Vuex.Store({
         },
         populatePortfolios({ commit }) {
             commit('POPULATE_PORTFOLIOS')
+        },
+        populateStocks({ commit }) {
+            commit('POPULATE_STOCKS')
+        },
+        savePortfolio({ commit } , payload){
+            commit('SAVE_PORTFOLIO', payload)
         },
     },
 })

@@ -6,28 +6,21 @@
     >
       <template v-slot:activator="{ on, attrs }">
         <v-btn
-          color="secondary"
+          color="primary"
           dark
           v-bind="attrs"
           v-on="on"
         >
-          Upload
+          Save
         </v-btn>
       </template>
 
       <v-card>
         <v-card-title class="headline grey lighten-2">
-          Upload Position File
+          Save Edited Positions
         </v-card-title>
         <v-card-actions>
             <v-container>
-              <v-row>
-                <v-file-input
-                    v-model="positionFile"
-                    label="Position File"
-                    dense
-                ></v-file-input>
-              </v-row>
               <v-row>
                 <v-col>
                 <v-combobox
@@ -47,9 +40,9 @@
                 <v-spacer></v-spacer>
                 <v-btn
                   color="primary"
-                  @click="uploadPositionFile"
+                  @click="savePortfolio()"
                 >
-                  Upload
+                  Save
                 </v-btn>
               </v-row>
             </v-container>
@@ -77,7 +70,6 @@
 </template>
 
 <script>
-import restService from "@/services/RestService.js"
 
   export default {
     data: () => ({
@@ -90,24 +82,25 @@ import restService from "@/services/RestService.js"
         snackText: '',
     }),
     methods:{
-        uploadPositionFile(){
-          this.portfolioNames = Object.keys(this.$store.state.portfolios);
-            if(this.positionFile){
-                if(restService.uploadPosition(this.positionFile, this.portfolioName)){
-                  this.snack = true
-                  this.snackColor = 'success'
-                  this.snackText = 'Upload successfully'
-                }
-                else{
-                  this.snack = true
-                  this.snackColor = 'error'
-                  this.snackText = 'Error uploading'
-                }
-            }
-            else{
-                console.log('there are no files.')
-            }
-            this.dialog = false
+        savePortfolio(){
+          if (this.portfolioName && this.portfolioName.length < 1) {
+            this.snack = true
+            this.snackColor = 'error'
+            this.snackText = 'Please enter Portfolio Name'
+            return false
+          }
+          else{
+            this.$store.dispatch('savePortfolio', {portfolio: this.portfolioName})
+            .then(()=>{
+              console.log('dialog:', this.dialog)
+            })
+            .catch((err) =>{
+              console.log('Error savePortfolio', err)
+              console.log('dialog:', this.dialog)
+            })
+            console.log('dialog:', this.dialog)
+            this.modaldialog = false
+          }
         }, 
     },
   }
