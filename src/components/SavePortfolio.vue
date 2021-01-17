@@ -83,23 +83,21 @@
     }),
     methods:{
         savePortfolio(){
-          if (this.portfolioName && this.portfolioName.length < 1) {
+          if (this.$store.state.portfolioName && this.$store.state.portfolioName.length < 1) {
             this.snack = true
             this.snackColor = 'error'
             this.snackText = 'Please enter Portfolio Name'
             return false
           }
           else{
-            this.$store.dispatch('savePortfolio', {portfolio: this.portfolioName})
+            this.$store.dispatch('savePortfolio', {portfolio: this.$store.state.portfolioName})
             .then(()=>{
-              console.log('dialog:', this.dialog)
+              this.dialog = false
             })
             .catch((err) =>{
               console.log('Error savePortfolio', err)
               console.log('dialog:', this.dialog)
             })
-            console.log('dialog:', this.dialog)
-            this.modaldialog = false
           }
         }, 
     },

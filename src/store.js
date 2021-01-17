@@ -15,6 +15,7 @@ export default new Vuex.Store({
         portfolioNames: [],
         portfolioName: null,
         file: null,
+        trades: [],
     },
     getters:{
         getField,
@@ -48,17 +49,13 @@ export default new Vuex.Store({
                 console.log('Error getting stocks:', error)
             })
         },
-        SAVE_POSITIONS(state){
-            restService.savePositions(state.positions)
-            .catch(error => {
-                console.log('Error saving positions:', error)
-            })
-        },
         SAVE_PORTFOLIO(state, payload){
+            console.log("Saving portfolio " + payload.portfolio)
+            for( var i = 0; i < state.positions.length; i++){
+                state.positions[i]["portfolio"] = payload.portfolio
+            }
+
             restService.savePortfolio(state.positions, payload.portfolio)
-            .catch(error => {
-                console.log('Error saving portfolio:', error)
-            })
         },
         updateField,
     },

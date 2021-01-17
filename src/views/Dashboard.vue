@@ -1,10 +1,24 @@
 <template>
 <div>
-    <v-container>
+    <v-container fluid >
         <v-row>
             <v-col cols="4">
+                <v-row>
+                    <v-data-table
+                        :headers="tradeHeaders"
+                        :items="$store.state.trades"
+                        class="elevation-1"
+                        dense
+                    >
+                    <template v-slot:top>
+                        <p class="font-weight-bold">
+                        Trades
+                        </p>
+                    </template>
+                    </v-data-table>
+                </v-row>
             </v-col>
-            <v-col clls="8">
+            <v-col cols="8" fluid class="mr-auto">
                 <v-row>
                     <v-data-table
                         :headers="posHeaders"
@@ -14,7 +28,14 @@
                     >
                     <template v-slot:top>
                         <v-row>
-                            <v-col cols=8>
+                            <v-spacer>
+                            </v-spacer>
+                            <v-col cols=2>
+                                <p class="font-weight-bold">
+                                    Portfolio
+                                </p>
+                            </v-col>
+                            <v-col cols=7>
                                 <v-combobox
                                     v-model='$store.state.portfolioName'
                                     :items='$store.state.portfolioNames'
@@ -22,22 +43,26 @@
                                     @change="populatePositions"
                                 >
                                 </v-combobox>
+
                             </v-col>
-                            <v-col cols=4>
+                            <v-col cols=2>
                                 <SavePortfolio/>
                             </v-col>
+                            <v-spacer>
+                            </v-spacer>
                         </v-row>
                     </template>
                     <template v-slot:[`item.lastprice`] = "props">
                         {{ getLast(props.item.stock)}}
                     </template>
                     <template v-slot:[`item.value`] = "props">
-                        {{formatNumber(parseFloat(getLast(props.item.stock)) * parseInt(props.item.quantity))}}
+                        {{formatNumber((parseFloat(getLast(props.item.stock)) * parseInt(props.item.quantity)).toFixed(2))}}
                     </template>
                     <template v-slot:[`item.quantity`]="props">
                         <v-edit-dialog
                             :return-value.sync="props.item.quantity"
-                            @open="open"
+                            @open="open(props.item.quantity)"
+                            @close="close(props.item)"
                         >
                         {{ formatNumber(props.item.quantity) }}
                             <template v-slot:input>
@@ -52,6 +77,7 @@
                     </template>
                     </v-data-table>
                 </v-row>
+                
                 <v-row>
                 </v-row>
             </v-col>
@@ -93,10 +119,16 @@ export default {
                 {text:'Quantity', value:'quantity'},
                 {text:'Value', value:'value'},
             ],
+            tradeHeaders :[
+                {text:'Stock', value:'stock'},
+                {text:'Side', value:'side'},
+                {text:'Quantity', value:'quantity'},
+            ],
             snack: false,
             snackColor: '',
             snackText: '',
             saveBtnDisable : true,
+            origQty: null,
         }
     },
 
@@ -110,11 +142,22 @@ export default {
     },
     
     methods:{
-      open () {
+      open (origQty) {
         this.snack = true
         this.snackColor = 'info'
         this.snackText = 'Editing opened'
         this.saveBtnDisable = false
+        this.origQty = origQty
+      },
+
+      close(item){
+          console.log('old qty ' + this.origQty)
+          if (this.origQty != item.quantity) {
+              let diff = item.quantity - this.origQty
+              this.$store.state.trades.push({'stock':item.stock,
+                'side': diff > 0 ? 'B': 'S',    
+                'quantity': diff})
+          }
       },
 
       getLast(stock){
@@ -136,9 +179,6 @@ export default {
             this.$store.dispatch('populatePositions')
         },
         
-        savePositions(){
-            
-        },
     },
 
     computed:{

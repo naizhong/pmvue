@@ -35,6 +35,7 @@
                   :items= '$store.state.portfolioNames'
                   label='Portfolio Name'
                   dense
+                  @input.native="e => $store.state.portfolioName = e.target.value"
                 >
                 </v-combobox>
                 </v-col>
@@ -84,31 +85,43 @@ import restService from "@/services/RestService.js"
         dialog: false,
         positionFile: null,
         portfolioNames: [], 
-        portfolioName: null,
         snack: false,
         snackColor: '',
         snackText: '',
+        portName: '',
     }),
     methods:{
         uploadPositionFile(){
-          this.portfolioNames = Object.keys(this.$store.state.portfolios);
-            if(this.positionFile){
-                if(restService.uploadPosition(this.positionFile, this.portfolioName)){
-                  this.snack = true
-                  this.snackColor = 'success'
-                  this.snackText = 'Upload successfully'
-                }
-                else{
-                  this.snack = true
-                  this.snackColor = 'error'
-                  this.snackText = 'Error uploading'
-                }
-            }
-            else{
-                console.log('there are no files.')
-            }
-            this.dialog = false
+          if (!this.positionFile) {
+            console.log('there are no files.')
+            this.snack = true
+            this.snackColor = 'error'
+            this.snackText = 'No file selected'
+            return
+          }
+          else if (! this.$store.state.portfolioName || this.$store.state.portfolioName.length == 0) {
+            console.log('Portfolio Name cannot be empty.')
+            this.snack = true
+            this.snackColor = 'error'
+            this.snackText = 'Portfolio Name cannot be empty'
+            return
+          } 
+
+          if(restService.uploadPosition(this.positionFile, this.$store.state.portfolioName)){
+            this.snack = true
+            this.snackColor = 'success'
+            this.snackText = 'Upload successfully'
+
+          }
+          else{
+            this.snack = true
+            this.snackColor = 'error'
+            this.snackText = 'Error uploading'
+          }
+          
+          this.dialog = false
+
         }, 
     },
   }
-</script>
+</script> 

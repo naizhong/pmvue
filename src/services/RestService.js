@@ -36,6 +36,9 @@ export default {
             }
         ).then(function(){
             console.log('upload successfully.');
+            store.dispatch('populateStocks');
+            store.dispatch('populatePortfolios');
+            store.dispatch('populatePositions');
         })
         .catch(function(){
             console.log('upload failed');
@@ -45,51 +48,25 @@ export default {
     },
 
     savePortfolio(){
-        let portfolio = store.state.portfolioName
-        let portfolios = restClient.get('/portfolios/')
-        let found = false
-        for (let index = 0; index < portfolios.length; index++) {
-            if (portfolios[index].name == portfolio) {
-                found = true
-                restClient.put('/portfolios/' + portfolio + '/', {name: portfolio})
-                    .then(() =>{
-                        console.log('Update portfolio ' + portfolio + ' successfully.')
-                    })
-                    .catch((err) => {
-                        console.log('Update portfolio ' + portfolio + ' failed with error ' + err)
-                    })
-
-                //Update position portfolios
-                let positions = store.state.positions
-                for (let i = 0; i < positions.length; i++) {
-                    positions[i].portfolio = portfolio
-                }
-                break
-            }
-        }
-
-        if (!found) {
-            restClient.post('/portfolios/', {name: portfolio})
-                .then(() => {
-                    console.log('Create portfolio ' + portfolio + ' successfully.')
+        var port = store.state.portfolioName
+        restClient.post('/portfolios/', {name: port})
+        .then(() =>{
+            console.log('Update portfolio ' + port + ' successfully.')
+        })
+        .catch((err) => {
+            console.log('Update portfolio ' + port + ' failed with error ' + err)
                 })
-                .catch((err) => {
-                    console.log('Create portfolio ' + portfolio + ' failed with error ' + err)
-                })
-        }
-
-        //Lastly save positions
         this.savePositions()
     },
 
     savePositions(){
         store.state.positions.forEach(p => {
-            restClient.put('/positions/' + p.id + '/', p
+            restClient.post('/positions/', p
             ).then(function() {
-                console.log('save position ' + p.stock + ' successfully.');
+                console.log('new position ' + p.stock + ' for ' + p.portfolio + ' successfully.');
             })
             .catch(function() {
-                console.log('save position ' + p.stock + ' failed.');
+                console.log('new position ' + p.stock + ' for ' + p.portfolio + ' failed.');
             })
 
         });
